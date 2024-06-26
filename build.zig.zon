@@ -1,0 +1,19 @@
+.{
+    .name = "asteroids",
+
+    .version = "0.0.0",
+
+    .minimum_zig_version = "0.13.0",
+
+    .dependencies = .{
+        .raylib = .{
+            .url = "../zraylib/raylib.tar.gz",
+            .hash = "1220fb408400a7adbddd0e58458fbf21e97674b56f938771ef491e1b0ee7b4937f82",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
