@@ -7,8 +7,8 @@
 
     .dependencies = .{
         .raylib = .{
-            .url = "../zraylib/raylib.tar.gz",
-            .hash = "1220fb408400a7adbddd0e58458fbf21e97674b56f938771ef491e1b0ee7b4937f82",
+            .url = "../zraylib/",
+            .hash = "1220a1277b3442b14e6d5dd4362ba890947914e96050779c89c757a73d9bf9300224",
         },
     },
     .paths = .{
