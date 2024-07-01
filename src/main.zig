@@ -3,6 +3,8 @@ const math = std.math;
 const ray = @import("raylib");
 const Vector2 = ray.Vector2;
 const Black = ray.colors.Black;
+const Color = ray.Color;
+const BASE_SIZE: f32 = 20;
 const screen = struct {
     pub const width: i32 = 800;
     pub const height: i32 = 450;
@@ -18,7 +20,8 @@ pub fn main() !void {
                 (screen.width / 2) - (Player.WIDTH / 2),
                 (screen.height / 2) - (Player.HEIGHT / 2),
             },
-            .rotation = 45,
+            .rotation = 0,
+            .color = Black,
         },
     });
     defer game.deinit();
@@ -26,7 +29,7 @@ pub fn main() !void {
         ray.beginDrawing();
         defer ray.endDrawing();
         ray.clearBackground(ray.colors.White);
-        ray.drawTriangle(game.player.p1(), game.player.p2(), game.player.p3(), Black);
+        game.player.draw();
     }
 }
 const InitOptions = struct {
@@ -34,9 +37,6 @@ const InitOptions = struct {
 };
 fn init(options: InitOptions) Game {
     ray.setTargetFps(screen.fps);
-    ray.setWindowState(.{
-        .msaa_4x_hint = true,
-    });
     return Game{
         .player = options.player,
     };
@@ -45,34 +45,28 @@ fn deinit(self: *Game) void {
     _ = self;
     ray.closeWindow();
 }
-const Player = Triangle(20);
-fn Triangle(comptime BASE_SIZE: f32) type {
-    return struct {
-        const x = 0;
-        const y = 1;
-        const Self = @This();
-        pub const HEIGHT: f32 = (BASE_SIZE / 2) / math.tan(math.degreesToRadians(20));
-        pub const WIDTH: f32 = BASE_SIZE;
-        pos: Vector2,
-        rotation: f32,
-
-        pub fn p1(self: Self) Vector2 {
-            return .{
-                self.pos[x] - (math.sin(math.degreesToRadians(self.rotation)) * HEIGHT),
-                self.pos[y] - (math.cos(math.degreesToRadians(self.rotation)) * HEIGHT),
-            };
-        }
-        pub fn p2(self: Self) Vector2 {
-            return .{
-                self.pos[x] - (math.cos(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
-                self.pos[y] + (math.sin(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
-            };
-        }
-        pub fn p3(self: Self) Vector2 {
-            return .{
-                self.pos[x] + (math.cos(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
-                self.pos[y] - (math.sin(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
-            };
-        }
-    };
-}
+const Player = struct {
+    const x = 0;
+    const y = 1;
+    const Self = @This();
+    pub const HEIGHT: f32 = (BASE_SIZE / 2) / math.tan(math.degreesToRadians(20));
+    pub const WIDTH: f32 = BASE_SIZE;
+    pos: Vector2,
+    rotation: f32,
+    color: Color,
+    pub fn draw(self: *Player) void {
+        const p1 = Vector2{
+            self.pos[x] - (math.sin(math.degreesToRadians(self.rotation)) * HEIGHT),
+            self.pos[y] - (math.cos(math.degreesToRadians(self.rotation)) * HEIGHT),
+        };
+        const p2 = Vector2{
+            self.pos[x] - (math.cos(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
+            self.pos[y] + (math.sin(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
+        };
+        const p3 = Vector2{
+            self.pos[x] + (math.cos(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
+            self.pos[y] - (math.sin(math.degreesToRadians(self.rotation)) * (WIDTH / 2)),
+        };
+        ray.drawTriangle(p1, p2, p3, self.color);
+    }
+};
