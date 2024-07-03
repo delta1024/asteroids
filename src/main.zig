@@ -80,18 +80,21 @@ const Player = struct {
         }
     }
     fn draw(player: *Player) void {
-        const p1 = Vector2{
-            player.pos[0] + @sin(decToRad(player.rotation)) * player_heght,
-            player.pos[1] - @cos(decToRad(player.rotation)) * player_heght,
-        };
-        const p2 = Vector2{
-            player.pos[0] - @cos(decToRad(player.rotation)) * (player_width / 2),
-            player.pos[1] - @sin(decToRad(player.rotation)) * (player_width / 2),
-        };
-        const p3 = Vector2{
-            player.pos[0] + @cos(decToRad(player.rotation)) * (player_width / 2),
-            player.pos[1] + @sin(decToRad(player.rotation)) * (player_width / 2),
-        };
-        ray.drawTriangle(p1, p2, p3, colors.Black);
+        const upper_vector = Vector2{ 1, -1 } * (Vector2{
+            @sin(decToRad(player.rotation)),
+            @cos(decToRad(player.rotation)),
+        } * Vector2{ player_heght, player_heght });
+
+        const side_vector = Vector2{
+            @cos(decToRad(player.rotation)),
+            @sin(decToRad(player.rotation)),
+        } * Vector2{ player_width / 2, player_width / 2 };
+
+        ray.drawTriangle(
+            player.pos + upper_vector,
+            player.pos - side_vector,
+            player.pos + side_vector,
+            colors.Black,
+        );
     }
 };
