@@ -6,8 +6,9 @@ pub fn build(b: *std.Build) void {
 
     const opts = b.addOptions();
     opts.addOption([:0]const u8, "title", "asteroids");
-    opts.addOption(i32, "default_width", 450);
-    opts.addOption(i32, "default_height", 800);
+    opts.addOption(i32, "default_height", 450);
+    opts.addOption(i32, "default_width", 800);
+    opts.addOption(f32, "player_width", 20);
 
     const raylib_dep = b.dependency("raylib", .{});
     const raylib = raylib_dep.module("raylib");
