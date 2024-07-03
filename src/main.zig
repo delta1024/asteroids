@@ -98,3 +98,38 @@ const Player = struct {
         );
     }
 };
+const Bullet = struct {
+    pos: Vector2 = .{ 0, 0 },
+    speed: Vector2 = .{ 0, 0 },
+    rotation: f32 = 0,
+    radius: f32 = 3,
+    time_active: usize = 0,
+    active: bool = false,
+    pub fn init(player: *Player) Bullet {
+        return Bullet{
+            .pos = Vector2{ 1, -1 } * (Vector2{
+                @sin(decToRad(player.rotation)),
+                @cos(decToRad(player.rotation)),
+            } * player_heght),
+            .rotation = player.rotation,
+            .speed = Vector2{ 1.5, -1.5 } * (Vector2{
+                @sin(decToRad(player.rotation)),
+                @cos(decToRad(player.rotation)),
+            } * Vector2{ player_speed, player_speed }),
+            .active = true,
+        };
+    }
+    pub fn update(bullet: *Bullet) void {
+        bullet.time_active += 1;
+        bullet.pos += bullet.speed;
+        if (bullet.pos[0] < 0 or
+            bullet.pos[0] > opts.default_width or
+            bullet.pos[1] < 0 or
+            bullet[1] > opts.default_height or
+            bullet.time_active > 60)
+            bullet.active = false;
+    }
+    pub fn draw(bullet: *Bullet) void {
+        ray.drawCircleV(bullet.pos, bullet.radius, colors.Black);
+    }
+};
