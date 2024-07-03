@@ -5,6 +5,7 @@ const opts = @import("opts");
 const ray = @import("raylib");
 const colors = ray.colors;
 const Vector2 = ray.Vector2;
+const max_bullets: usize = 10;
 const player_width = opts.player_width;
 const player_heght = (player_width / 2) / @tan(decToRad(20));
 const player_speed: f32 = 6;
@@ -12,16 +13,25 @@ pub fn main() !void {
     var player = Player{
         .pos = .{ (opts.default_width / 2), (opts.default_height / 2) },
     };
+    var bullets: [max_bullets]Bullet = [_]Bullet{.{}} ** max_bullets;
     ray.initWindow(opts.default_width, opts.default_height, opts.title);
     defer ray.closeWindow();
     ray.setTargetFps(60);
 
     while (!ray.windowShouldClose()) {
-        player.update();
+        player.update(&bullets);
+
+        for (&bullets) |*bullet|
+            if (bullet.active)
+                bullet.update();
+
         ray.beginDrawing();
         defer ray.endDrawing();
         ray.clearBackground(colors.RayWhite);
         player.draw();
+        for (&bullets) |bullet|
+            if (bullet.active)
+                bullet.draw();
     }
 }
 const Player = struct {
@@ -29,7 +39,7 @@ const Player = struct {
     speed: Vector2 = .{ 0, 0 },
     rotation: f32 = 0.0,
     acceleration: f32 = 0.0,
-    fn update(player: *Player) void {
+    fn update(player: *Player, bullets: []Bullet) void {
         if (ray.isKeyDown(.Left)) {
             player.rotation -= 5;
         }
@@ -78,6 +88,14 @@ const Player = struct {
             // player.rotation *= -1;
             player.pos[1] -= (opts.default_height + player_heght);
         }
+        if (ray.isKeyDown(.Space)) {
+            for (bullets) |*bullet| {
+                if (bullet.active)
+                    continue;
+                bullet.* = Bullet.init(player);
+                break;
+            }
+        }
     }
     fn draw(player: *Player) void {
         const upper_vector = Vector2{ 1, -1 } * (Vector2{
@@ -107,10 +125,10 @@ const Bullet = struct {
     active: bool = false,
     pub fn init(player: *Player) Bullet {
         return Bullet{
-            .pos = Vector2{ 1, -1 } * (Vector2{
+            .pos = player.pos + (Vector2{ 1, -1 } * (Vector2{
                 @sin(decToRad(player.rotation)),
                 @cos(decToRad(player.rotation)),
-            } * player_heght),
+            } * Vector2{ player_heght, player_heght })),
             .rotation = player.rotation,
             .speed = Vector2{ 1.5, -1.5 } * (Vector2{
                 @sin(decToRad(player.rotation)),
@@ -125,11 +143,11 @@ const Bullet = struct {
         if (bullet.pos[0] < 0 or
             bullet.pos[0] > opts.default_width or
             bullet.pos[1] < 0 or
-            bullet[1] > opts.default_height or
+            bullet.pos[1] > opts.default_height or
             bullet.time_active > 60)
             bullet.active = false;
     }
-    pub fn draw(bullet: *Bullet) void {
+    pub fn draw(bullet: Bullet) void {
         ray.drawCircleV(bullet.pos, bullet.radius, colors.Black);
     }
 };
