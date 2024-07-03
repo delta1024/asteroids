@@ -7,10 +7,11 @@ const colors = ray.colors;
 const Vector2 = ray.Vector2;
 const player_width = opts.player_width;
 const player_heght = (player_width / 2) / @tan(decToRad(20));
-
+const player_speed: f32 = 6;
 const Player = struct {
     pos: Vector2,
     rotation: f32 = 0.0,
+    acceleration: f32 = 0.0,
 };
 pub fn main() !void {
     var player = Player{
@@ -18,14 +19,38 @@ pub fn main() !void {
     };
     ray.initWindow(opts.default_width, opts.default_height, opts.title);
     defer ray.closeWindow();
+    ray.setTargetFps(60);
 
     while (!ray.windowShouldClose()) {
         if (ray.isKeyDown(.Left)) {
-            player.rotation -= 0.05;
+            player.rotation -= 5;
         }
         if (ray.isKeyDown(.Right)) {
-            player.rotation += 0.05;
+            player.rotation += 5;
         }
+        if (ray.isKeyDown(.Up)) {
+            if (player.acceleration < 1)
+                player.acceleration += 0.04;
+        } else {
+            if (player.acceleration > 0)
+                player.acceleration -= 0.02
+            else if (player.acceleration < 0)
+                player.acceleration = 0;
+        }
+        if (ray.isKeyDown(.Down)) {
+            if (player.acceleration > 0)
+                player.acceleration -= 0.04
+            else if (player.acceleration < 0)
+                player.acceleration = 0;
+        }
+
+        const speed = Vector2{
+            @sin(decToRad(player.rotation)),
+            @cos(decToRad(player.rotation)),
+        } * Vector2{ player_speed, player_speed };
+
+        player.pos += (Vector2{ 1, -1 } * (speed * Vector2{ player.acceleration, player.acceleration }));
+
         ray.beginDrawing();
         defer ray.endDrawing();
         ray.clearBackground(colors.RayWhite);
