@@ -58,6 +58,26 @@ const Player = struct {
         } * Vector2{ player_speed, player_speed };
 
         player.pos += (Vector2{ 1, -1 } * (player.speed * Vector2{ player.acceleration, player.acceleration }));
+
+        const p1 = Vector2{
+            player.pos[0] + @sin(decToRad(player.rotation)) * player_heght,
+            player.pos[1] - @cos(decToRad(player.rotation)) * player_heght,
+        };
+        if (player.pos[0] < 0 and p1[0] < 0) {
+            // player.rotation *= -1;
+            player.pos[0] += (opts.default_width + player_heght);
+        } else if (player.pos[0] > opts.default_width and p1[0] > opts.default_width) {
+            // player.rotation *= -1;
+            player.pos[0] -= (opts.default_width + player_heght);
+        }
+
+        if (player.pos[1] < 0 and p1[1] < 0) {
+            // player.rotation *= -1;
+            player.pos[1] += (opts.default_height + player_heght);
+        } else if (player.pos[1] > opts.default_height and p1[1] > opts.default_height) {
+            // player.rotation *= -1;
+            player.pos[1] -= (opts.default_height + player_heght);
+        }
     }
     fn draw(player: *Player) void {
         const p1 = Vector2{
