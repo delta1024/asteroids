@@ -13,13 +13,19 @@ const Player = struct {
     rotation: f32 = 0.0,
 };
 pub fn main() !void {
-    const player = Player{
+    var player = Player{
         .pos = .{ (opts.default_width / 2), (opts.default_height / 2) },
     };
     ray.initWindow(opts.default_width, opts.default_height, opts.title);
     defer ray.closeWindow();
 
     while (!ray.windowShouldClose()) {
+        if (ray.isKeyDown(.Left)) {
+            player.rotation -= 0.05;
+        }
+        if (ray.isKeyDown(.Right)) {
+            player.rotation += 0.05;
+        }
         ray.beginDrawing();
         defer ray.endDrawing();
         ray.clearBackground(colors.RayWhite);
